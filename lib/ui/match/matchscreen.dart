@@ -1,7 +1,14 @@
+import 'dart:convert';
+import 'package:flutter_app/util/model/leaguemodel.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/util/color.dart';
+import 'package:flutter_app/util/constant.dart';
 import 'package:flutter_app/util/defaultText.dart';
 import 'package:flutter_app/util/helper.dart';
+import 'package:flutter_app/util/model/matchmodel.dart';
+import 'package:flutter_app/util/network/api.dart';
 
 class MatchesScreen extends StatefulWidget {
   @override
@@ -9,199 +16,418 @@ class MatchesScreen extends StatefulWidget {
 }
 
 class _MatchesScreen extends State<MatchesScreen> {
-
-  List matches = ["Liga 1","Liga 2","Liga 3","Liga 4"];
-
+  List _leagues = [
+    '4328',
+    '4332',
+    '4334',
+    '4335',
+    '4337',
+    '4344',
+    '4480',
+    '4790'
+  ];
+  List<MatchModel> _matches = [];
   final _searchController = TextEditingController();
-  List<DropdownMenuItem<String>> _dropDownMenuItems;
-  String _matches;
+  String _leagueId = '4328';
+  String tabs = Constant.API_listLastMatch;
   bool isLoading = false;
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    _searchController.dispose();
-  }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    isLoading = true;
-    _dropDownMenuItems = getDropDownMenuItems();
-    _matches = _dropDownMenuItems[0].value;
-    // searchListener();
-    // setState(() {
-    //   _searchController.addListener(() {
-    //     searchListener();
-    //   });
-    // });
+    setState(() {
+      apiMatches(tabs, _leagueId);
+    });
   }
 
   searchListener() {
     print(_searchController.text);
   }
 
-  List<DropdownMenuItem<String>> getDropDownMenuItems() {
-    List<DropdownMenuItem<String>> items = new List();
-    for (String _matches in matches) {
-      isLoading = false;
-      // here we are creating the drop down menu items, you can customize the item right here
-      // but I'll just use a simple text for this
-      items.add(new DropdownMenuItem(value: _matches, child: new Text(_matches)));
-    }
-    return items;
-  }
-
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    bool isSearch = false;
     return Scaffold(
       body: DefaultTabController(
         length: 2,
         child: Scaffold(
-           appBar: AppBar(
-             actions: [
-               GestureDetector(
-                 onTap: () => Helper.searchBottom(context, _searchController, (){searchListener();}),
-                   child: Icon(Icons.search))
-             ],
-             backgroundColor: Colors.blueGrey,
-             title: DefaultText(textLabel: 'Matches',),
-             bottom: TabBar(
-               tabs: [
-                 Tab(text: 'LAST MATCH',),
-                 Tab(text: 'NEXT MATCH',),
-               ],
-             ),
-           ),
-           body: TabBarView(
-             children: [
-               listDokterGigi(),
-               listDokterGigi()
-             ],
-           )
+            appBar: AppBar(
+              actions: [
+                GestureDetector(
+                    onTap: () =>
+                        Helper.searchBottom(context, _searchController, () {
+                          searchListener();
+                        }),
+                    child: Icon(Icons.search))
+              ],
+              backgroundColor: Colors.blueGrey,
+              title: DefaultText(
+                textLabel: 'Matches',
+              ),
+              bottom: TabBar(
+                tabs: [
+                  Tab(
+                    text: 'LAST MATCH',
+                  ),
+                  Tab(
+                    text: 'NEXT MATCH',
+                  ),
+                ],
+              ),
+            ),
+            body: TabBarView(
+              children: [
+                isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : matchesPageLast(Constant.API_listLastMatch),
+                isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : matchesPageNext(Constant.API_listNextMatch)
+              ],
+            )),
+      ),
+    );
+  }
+
+  String matches(String item) {
+    String text;
+    switch (item) {
+      case '4328':
+        text = 'English Premier League';
+        setState(() {});
+        break;
+      case '4332':
+        text = 'Italian Serie A';
+        setState(() {});
+        break;
+      case '4334':
+        text = 'French Ligue 1';
+        setState(() {});
+        break;
+      case '4335':
+        text = 'Spanish La Liga';
+        setState(() {});
+        break;
+      case '4337':
+        text = 'Dutch Eredivisie';
+        setState(() {});
+        break;
+      case '4344':
+        text = 'Portuguese Primeira Liga';
+        setState(() {});
+        break;
+      case '4480':
+        text = 'UEFA Champions League';
+        setState(() {});
+        break;
+      case '4790':
+        text = 'Indonesian Super League';
+        setState(() {});
+        break;
+    }
+
+    return text;
+  }
+
+  Widget matchesPageLast(String tabs) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(top: 12),
+              padding: EdgeInsets.all(8),
+              height: 40,
+              decoration: BoxDecoration(
+                  border: Border.all(color: Colors.blueGrey),
+                  borderRadius: BorderRadius.circular(10)),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton(
+                  hint: DefaultText(
+                    textLabel: "Choose League...",
+                  ),
+                  items: _leagues.map((item) {
+                    return DropdownMenuItem(
+                      child: Text(matches(item)),
+                      value: item,
+                    );
+                  }).toList(),
+                  onChanged: (newVal) {
+                    setState(() {
+                      _leagueId = newVal;
+                      print(_leagueId);
+                      apiMatches(tabs, _leagueId);
+                    });
+                  },
+                  value: _leagueId == null ? '4328' : _leagueId,
+                ),
+              ),
+            ),
+            isLoading ? Center(child: CircularProgressIndicator()) : listLast()
+          ],
         ),
       ),
     );
   }
 
-  void changedDropDownItem(String matches) {
-    print("matches = $matches");
-    setState(() {
-      _matches = matches;
-    });
+  Widget matchesPageNext(String tabs) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(top: 12),
+              padding: EdgeInsets.all(8),
+              height: 40,
+              decoration: BoxDecoration(
+                  border: Border.all(color: Colors.blueGrey),
+                  borderRadius: BorderRadius.circular(10)),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton(
+                  hint: DefaultText(
+                    textLabel: "Choose League...",
+                  ),
+                  items: _leagues.map((item) {
+                    return DropdownMenuItem(
+                      child: Text(matches(item)),
+                      value: item,
+                    );
+                  }).toList(),
+                  onChanged: (newVal) {
+                    setState(() {
+                      _leagueId = newVal;
+                      print(_leagueId);
+                      apiMatches(tabs, _leagueId);
+                    });
+                  },
+                  value: _leagueId == null ? '4328' : _leagueId,
+                ),
+              ),
+            ),
+            isLoading ? Center(child: CircularProgressIndicator()) : listNext()
+          ],
+        ),
+      ),
+    );
   }
 
-  Widget listDokterGigi() {
-    final namaDokter = [
-      "Nandia, drg.",
-      "Nandia Ganteng, drg.",
-      "Nandia Ganteng Sekali, drg.",
-      "Nandia Ganteng Banget, drg."
-    ];
-    final descDokter = [
-      "S1/Sarjana dan PROFESI, Fakultas Kedokteran Gigi Universitas Trisakti program studi Kedokteran Gigi",
-      "S1/Sarjana dan PROFESI, Fakultas Kedokteran Gigi Universitas Trisakti program studi Kedokteran Gigi",
-      "S1/Sarjana dan PROFESI, Fakultas Kedokteran Gigi Universitas Trisakti program studi Kedokteran Gigi",
-      "S1/Sarjana dan PROFESI, Fakultas Kedokteran Gigi Universitas Trisakti program studi Kedokteran Gigi"
-    ];
-    final harga = [
-      "Rp.100.000",
-      "Rp.100.000",
-      "Rp.100.000",
-      "Rp.100.000"
-    ];
-
+  Widget listLast() {
     return ListView.builder(
         padding: EdgeInsets.all(8),
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
-        itemCount: 4,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: _matches.length,
         itemBuilder: (context, index) {
-          return Stack(children: [
-            Column(
-              children: [
-                DefaultText(
-                  padding: EdgeInsets.all(4),
-                  colorbackground: Colors.blueGrey,
-                  margin: EdgeInsets.only(top: 6, left: 280),
-                  textLabel: 'satu',
-                  colorsText: ColorsState.white,
-                  sizeText: 10,
-                ),
-                Container(
-                    margin: EdgeInsets.only(top: 15, right: 8),
-                    alignment: Alignment.centerRight,
-                    child: Icon(Icons.info_outline, color: Colors.blueGrey)),
-              ],
-            ),
-            Container(
-              margin: EdgeInsets.only(bottom: 8),
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(8)),
-                  border: Border.all(color:Colors.blueGrey)),
-              child: GestureDetector(
-                // onTap: () => Scaffold.of(context).showSnackBar(Ui.snackbar(context, 'Coming soon!', 'OK', (){})),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            DefaultText(
-                              margin: EdgeInsets.only(top: 8),
-                              textLabel: '${namaDokter[index]}',
-                              fontWeight: FontWeight.bold,
-                              sizeText: 14.0,
-                              colorsText: ColorsState.backgroundColor,
-                            ),
-                            SizedBox(
-                                width: 280,
-                                child: DefaultText(
-                                  maxLines: 2,
-                                  textAlign: TextAlign.justify,
-                                  textOverflow: TextOverflow.ellipsis,
-                                  margin: EdgeInsets.only(top: 4),
-                                  sizeText: 12.0,
-                                  colorsText: Colors.grey,
-                                  textLabel:
-                                  '${descDokter[index]}',
-                                )),
-                            DefaultText(
-                              margin: EdgeInsets.only(top: 4),
-                              textLabel:
-                              '${harga[index]}',
-                              fontWeight: FontWeight.bold,
-                              sizeText: 13,
-                              colorsText: Colors.blueGrey,
-                            ),
-                            DefaultText(
-                              borderRadius:
-                              BorderRadius.all(Radius.circular(8)),
-                              padding: EdgeInsets.all(4),
-                              border: Border.all(
-                                  color: ColorsState.backgroundColor),
-                              margin: EdgeInsets.only(top: 4, left: 185),
-                              textLabel: 'KONSULTASI SEKARANG',
-                              colorsText: ColorsState.backgroundColor,
-                              sizeText: 10,
-                            )
-                          ],
-                        ),
-                      ],
+          return Container(
+            padding: EdgeInsets.all(8),
+            margin: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blueGrey[200],
+                    offset: const Offset(
+                      2.0,
+                      2.0,
                     ),
-                  ],
-                ),
+                    blurRadius: 4.0,
+                    spreadRadius: 1.0,
+                  ),
+                  BoxShadow(
+                    color: Colors.white,
+                    offset: const Offset(0.0, 0.0),
+                    blurRadius: 0.0,
+                    spreadRadius: 0.0,
+                  ),
+                ],
+                border: Border.all(color: Colors.blueGrey),
+                borderRadius: BorderRadius.circular(10)),
+            child: Stack(children: [
+              DefaultText(
+                sizeText: 16,
+                fontWeight: FontWeight.bold,
+                alignment: Alignment.center,
+                margin: EdgeInsets.only(top: 60),
+                textLabel: 'vs',
               ),
-            )
-          ]);
+              Column(
+                children: [
+                  DefaultText(
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.all(8),
+                    textLabel: _matches[index].dateEvent,
+                    colorsText: Colors.blueGrey,
+                    sizeText: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  DefaultText(
+                    sizeText: 12,
+                    fontWeight: FontWeight.bold,
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.all(8),
+                    textLabel: _matches[index].strTime,
+                    colorsText: Colors.blueGrey,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      DefaultText(
+                        sizeText: 16,
+                        fontWeight: FontWeight.bold,
+                        textLabel: _matches[index].strHomeTeam,
+                      ),
+                      DefaultText(
+                        sizeText: 16,
+                        fontWeight: FontWeight.bold,
+                        textLabel: _matches[index].strAwayTeam,
+                      )
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      DefaultText(
+                        sizeText: 16,
+                        fontWeight: FontWeight.bold,
+                        textLabel: _matches[index].intHomeScore == null
+                            ? ' '
+                            : _matches[index].intHomeScore,
+                      ),
+                      DefaultText(
+                        sizeText: 16,
+                        fontWeight: FontWeight.bold,
+                        textLabel: _matches[index].intAwayScore == null
+                            ? ' '
+                            : _matches[index].intHomeScore,
+                      )
+                    ],
+                  )
+                ],
+              ),
+            ]),
+          );
         });
   }
 
+  Widget listNext() {
+    return ListView.builder(
+        padding: EdgeInsets.all(8),
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: _matches.length,
+        itemBuilder: (context, index) {
+          return Container(
+            padding: EdgeInsets.all(8),
+            margin: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blueGrey[200],
+                    offset: const Offset(
+                      2.0,
+                      2.0,
+                    ),
+                    blurRadius: 4.0,
+                    spreadRadius: 1.0,
+                  ),
+                  BoxShadow(
+                    color: Colors.white,
+                    offset: const Offset(0.0, 0.0),
+                    blurRadius: 0.0,
+                    spreadRadius: 0.0,
+                  ),
+                ],
+                border: Border.all(color: Colors.blueGrey),
+                borderRadius: BorderRadius.circular(10)),
+            child: Stack(children: [
+              DefaultText(
+                sizeText: 16,
+                fontWeight: FontWeight.bold,
+                alignment: Alignment.center,
+                margin: EdgeInsets.only(top: 60),
+                textLabel: 'vs',
+              ),
+              Column(
+                children: [
+                  DefaultText(
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.all(8),
+                    textLabel: _matches[index].dateEvent,
+                    colorsText: Colors.blueGrey,
+                    sizeText: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  DefaultText(
+                    sizeText: 12,
+                    fontWeight: FontWeight.bold,
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.all(8),
+                    textLabel: _matches[index].strTime,
+                    colorsText: Colors.blueGrey,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      DefaultText(
+                        sizeText: 16,
+                        fontWeight: FontWeight.bold,
+                        textLabel: _matches[index].strHomeTeam,
+                      ),
+                      DefaultText(
+                        sizeText: 16,
+                        fontWeight: FontWeight.bold,
+                        textLabel: _matches[index].strAwayTeam,
+                      )
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      DefaultText(
+                        sizeText: 16,
+                        fontWeight: FontWeight.bold,
+                        textLabel: _matches[index].intHomeScore == null
+                            ? ' '
+                            : _matches[index].intHomeScore,
+                      ),
+                      DefaultText(
+                        sizeText: 16,
+                        fontWeight: FontWeight.bold,
+                        textLabel: _matches[index].intAwayScore == null
+                            ? ' '
+                            : _matches[index].intHomeScore,
+                      )
+                    ],
+                  )
+                ],
+              ),
+            ]),
+          );
+        });
+  }
+
+  apiMatches(String tabs, String league) {
+    if (league.isEmpty) league = "4328";
+    isLoading = true;
+    _matches = [];
+    setState(() {});
+    Api.createDefaultParams((parameter) {
+      Api(context).execute('${tabs}$league', false, parameter, (response) {
+        isLoading = false;
+        print(response.data()['events']);
+        List match = response.data()['events'];
+        _matches.clear();
+        match.forEach((element) {
+          _matches.add(MatchModel.fromJson(element));
+          print('matched >> $element');
+        });
+
+        setState(() {});
+      });
+    });
+  }
 }

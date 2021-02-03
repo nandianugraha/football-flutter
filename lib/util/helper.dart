@@ -135,4 +135,55 @@ class Helper {
     var formater = DateFormat(DateFormat.HOUR_MINUTE_SECOND).format(date);
     return formater;
   }
+
+  static searchBottom(context, TextEditingController controller, Function func) {
+    showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(18.0), topRight: Radius.circular(18.0)),
+        ),
+        context: context,
+        builder: (BuildContext bc) {
+          return Container(
+            padding: EdgeInsets.all(10),
+            child: new Wrap(
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                  padding: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                      border:
+                      Border.all(color: Colors.black38.withOpacity(0.5), width: 1),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: TextField(
+                    controller: controller,
+                    style: TextStyle(color: Colors.blueGrey, fontSize: 16),
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(3),
+                        hintStyle: TextStyle(
+                            fontSize: 12,
+                            color: Colors.blueGrey,
+                            fontStyle: FontStyle.italic),
+                        hintText: 'matches',
+                        border:
+                        UnderlineInputBorder(borderSide: BorderSide.none)),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: func,
+                  child: DefaultText(
+                    margin: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.all(10),
+                    textLabel: 'KELUAR',
+                    fontWeight: FontWeight.bold,
+                    colorsText: Colors.white,
+                    colorbackground: Colors.blueGrey,
+                    borderRadius: BorderRadius.all(Radius.circular(4)),
+                  ),
+                )
+              ],
+            ),
+          );
+        });
+  }
 }

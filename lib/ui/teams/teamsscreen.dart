@@ -57,10 +57,9 @@ class _TeamsScreen extends State<TeamsScreen> {
             textLabel: 'Teams',
           ),
         ),
-        body: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: teamsUI(),
-        ));
+        body: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : teamsUI());
   }
 
   String matches(String item) {
@@ -104,40 +103,43 @@ class _TeamsScreen extends State<TeamsScreen> {
   }
 
   Widget teamsUI() {
-    return Column(
-      children: <Widget>[
-        Container(
-          width: MediaQuery.of(context).size.width,
-          margin: EdgeInsets.only(top: 12, left: 20, right: 20),
-          padding: EdgeInsets.all(8),
-          height: 40,
-          decoration: BoxDecoration(
-              border: Border.all(color: Colors.blueGrey),
-              borderRadius: BorderRadius.circular(10)),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton(
-              hint: DefaultText(
-                textLabel: "Choose League...",
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(
+        children: <Widget>[
+          Container(
+            width: MediaQuery.of(context).size.width,
+            margin: EdgeInsets.only(top: 12, left: 20, right: 20),
+            padding: EdgeInsets.all(8),
+            height: 40,
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.blueGrey),
+                borderRadius: BorderRadius.circular(10)),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton(
+                hint: DefaultText(
+                  textLabel: "Choose League...",
+                ),
+                items: _leagues.map((item) {
+                  return DropdownMenuItem(
+                    child: Text(matches(item)),
+                    value: item,
+                  );
+                }).toList(),
+                onChanged: (newVal) {
+                  setState(() {
+                    _leagueId = newVal;
+                    print(_leagueId);
+                    apiListTeams(_leagueId);
+                  });
+                },
+                value: _leagueId == null ? '4328' : _leagueId,
               ),
-              items: _leagues.map((item) {
-                return DropdownMenuItem(
-                  child: Text(matches(item)),
-                  value: item,
-                );
-              }).toList(),
-              onChanged: (newVal) {
-                setState(() {
-                  _leagueId = newVal;
-                  print(_leagueId);
-                  apiListTeams(_leagueId);
-                });
-              },
-              value: _leagueId == null ? '4328' : _leagueId,
             ),
           ),
-        ),
-        isLoading ? Center(child: CircularProgressIndicator()) : listTeams()
-      ],
+          isLoading ? Center(child: CircularProgressIndicator()) : listTeams()
+        ],
+      ),
     );
   }
 
@@ -176,7 +178,7 @@ class _TeamsScreen extends State<TeamsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Image.network(_teams[index].strTeamBadge, width: 50, height: 50,),
+                    Image.network(_teams[index].strTeamBadge == null ? Icon(Icons.not_interested) : _teams[index].strTeamBadge, width: 50, height: 50,),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,

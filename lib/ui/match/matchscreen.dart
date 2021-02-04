@@ -27,9 +27,11 @@ class _MatchesScreen extends State<MatchesScreen> {
     '4790'
   ];
   List<MatchModel> _matches = [];
+  List<MatchModel> _matchesNext = [];
   final _searchController = TextEditingController();
   String _leagueId = '4328';
   String tabs = Constant.API_listLastMatch;
+  String tabsNext = Constant.API_listNextMatch;
   bool isLoading = false;
 
   @override
@@ -38,6 +40,7 @@ class _MatchesScreen extends State<MatchesScreen> {
     super.initState();
     setState(() {
       apiMatches(tabs, _leagueId);
+      apiMatchesNext(tabsNext, _leagueId);
     });
   }
 
@@ -137,7 +140,8 @@ class _MatchesScreen extends State<MatchesScreen> {
         child: Column(
           children: <Widget>[
             Container(
-              margin: EdgeInsets.only(top: 12),
+              width: MediaQuery.of(context).size.width,
+              margin: EdgeInsets.only(top: 12, left: 20, right: 20),
               padding: EdgeInsets.all(8),
               height: 40,
               decoration: BoxDecoration(
@@ -179,7 +183,8 @@ class _MatchesScreen extends State<MatchesScreen> {
         child: Column(
           children: <Widget>[
             Container(
-              margin: EdgeInsets.only(top: 12),
+              width: MediaQuery.of(context).size.width,
+              margin: EdgeInsets.only(top: 12, left: 20, right: 20),
               padding: EdgeInsets.all(8),
               height: 40,
               decoration: BoxDecoration(
@@ -200,7 +205,7 @@ class _MatchesScreen extends State<MatchesScreen> {
                     setState(() {
                       _leagueId = newVal;
                       print(_leagueId);
-                      apiMatches(tabs, _leagueId);
+                      apiMatchesNext(tabs, _leagueId);
                     });
                   },
                   value: _leagueId == null ? '4328' : _leagueId,
@@ -301,7 +306,7 @@ class _MatchesScreen extends State<MatchesScreen> {
                         fontWeight: FontWeight.bold,
                         textLabel: _matches[index].intAwayScore == null
                             ? ' '
-                            : _matches[index].intHomeScore,
+                            : _matches[index].intAwayScore,
                       )
                     ],
                   )
@@ -318,7 +323,7 @@ class _MatchesScreen extends State<MatchesScreen> {
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
-        itemCount: _matches.length,
+        itemCount: _matchesNext.length,
         itemBuilder: (context, index) {
           return Container(
             padding: EdgeInsets.all(8),
@@ -356,7 +361,7 @@ class _MatchesScreen extends State<MatchesScreen> {
                   DefaultText(
                     alignment: Alignment.center,
                     padding: EdgeInsets.all(8),
-                    textLabel: _matches[index].dateEvent,
+                    textLabel: _matchesNext[index].dateEvent,
                     colorsText: Colors.blueGrey,
                     sizeText: 12,
                     fontWeight: FontWeight.bold,
@@ -366,7 +371,7 @@ class _MatchesScreen extends State<MatchesScreen> {
                     fontWeight: FontWeight.bold,
                     alignment: Alignment.center,
                     padding: EdgeInsets.all(8),
-                    textLabel: _matches[index].strTime,
+                    textLabel: _matchesNext[index].strTime,
                     colorsText: Colors.blueGrey,
                   ),
                   Row(
@@ -375,12 +380,12 @@ class _MatchesScreen extends State<MatchesScreen> {
                       DefaultText(
                         sizeText: 16,
                         fontWeight: FontWeight.bold,
-                        textLabel: _matches[index].strHomeTeam,
+                        textLabel: _matchesNext[index].strHomeTeam,
                       ),
                       DefaultText(
                         sizeText: 16,
                         fontWeight: FontWeight.bold,
-                        textLabel: _matches[index].strAwayTeam,
+                        textLabel: _matchesNext[index].strAwayTeam,
                       )
                     ],
                   ),
@@ -390,16 +395,16 @@ class _MatchesScreen extends State<MatchesScreen> {
                       DefaultText(
                         sizeText: 16,
                         fontWeight: FontWeight.bold,
-                        textLabel: _matches[index].intHomeScore == null
+                        textLabel: _matchesNext[index].intHomeScore == null
                             ? ' '
-                            : _matches[index].intHomeScore,
+                            : _matchesNext[index].intHomeScore,
                       ),
                       DefaultText(
                         sizeText: 16,
                         fontWeight: FontWeight.bold,
-                        textLabel: _matches[index].intAwayScore == null
+                        textLabel: _matchesNext[index].intAwayScore == null
                             ? ' '
-                            : _matches[index].intHomeScore,
+                            : _matchesNext[index].intHomeScore,
                       )
                     ],
                   )
@@ -423,6 +428,27 @@ class _MatchesScreen extends State<MatchesScreen> {
         _matches.clear();
         match.forEach((element) {
           _matches.add(MatchModel.fromJson(element));
+          print('matched >> $element');
+        });
+
+        setState(() {});
+      });
+    });
+  }
+
+  apiMatchesNext(String tabs, String league) {
+    if (league.isEmpty) league = "4328";
+    isLoading = true;
+    _matchesNext = [];
+    setState(() {});
+    Api.createDefaultParams((parameter) {
+      Api(context).execute('${tabs}$league', false, parameter, (response) {
+        isLoading = false;
+        print(response.data()['events']);
+        List match = response.data()['events'];
+        _matchesNext.clear();
+        match.forEach((element) {
+          _matchesNext.add(MatchModel.fromJson(element));
           print('matched >> $element');
         });
 

@@ -5,6 +5,7 @@ import 'package:flutter_app/util/helper.dart';
 import 'package:flutter_app/util/ui.dart';
 
 import 'favorite/favoritescreen.dart';
+import 'klasemen/klasemenscreen.dart';
 import 'match/matchscreen.dart';
 import 'teams/teamsscreen.dart';
 
@@ -51,37 +52,52 @@ class _HomeScreen extends State<HomeScreen> {
                   // isOpen = false;
                   setState(() {});
                   break;
+                case 3:
+                  pos = 3;
+                  // isOpen = false;
+                  setState(() {});
+                  break;
               }
             },
             items: [
               BottomNavigationBarItem(
                 icon: Icon(
-                  Icons.sports_soccer_outlined,
+                  Icons.table_chart,
                   color: pos == 0 ? Colors.white : Colors.black38,
                 ),
                 title: new DefaultText(
-                  textLabel: 'MATCHES',
+                  textLabel: 'KLASEMEN',
                   colorsText: pos == 0 ? Colors.white : Colors.black38,
                 ),
               ),
               BottomNavigationBarItem(
                 icon: Icon(
-                  Icons.home_work_rounded,
+                  Icons.sports_soccer_outlined,
                   color: pos == 1 ? Colors.white : Colors.black38,
                 ),
                 title: new DefaultText(
-                  textLabel: 'TEAMS',
+                  textLabel: 'MATCHES',
                   colorsText: pos == 1 ? Colors.white : Colors.black38,
+                ),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.home_work_rounded,
+                  color: pos == 2 ? Colors.white : Colors.black38,
+                ),
+                title: new DefaultText(
+                  textLabel: 'TEAMS',
+                  colorsText: pos == 2 ? Colors.white : Colors.black38,
                 ),
               ),
               BottomNavigationBarItem(
                   icon: Icon(
                     Icons.favorite_outline,
-                    color: pos == 2 ? Colors.white : Colors.black38,
+                    color: pos == 3 ? Colors.white : Colors.black38,
                   ),
                   title: DefaultText(
                     textLabel: 'FAVORITES',
-                    colorsText: pos == 2 ? Colors.white : Colors.black38,
+                    colorsText: pos == 3 ? Colors.white : Colors.black38,
                   )),
             ]),
       ),
@@ -91,10 +107,12 @@ class _HomeScreen extends State<HomeScreen> {
   Widget _getPageWidget(int pos) {
     switch (pos) {
       case 0:
-        return MatchesScreen();
+        return KlasemenScreen();
       case 1:
-        return TeamsScreen();
+        return MatchesScreen();
       case 2:
+        return TeamsScreen();
+      case 3:
         return FavoritesScreen();
 
       default:

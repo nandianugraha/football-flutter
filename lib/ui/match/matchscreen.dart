@@ -440,7 +440,6 @@ class _MatchesScreen extends State<MatchesScreen> {
     if (league.isEmpty) league = "4328";
     isLoading = true;
     _matchesNext = [];
-    setState(() {});
     Api.createDefaultParams((parameter) {
       Api(context).execute('${tabs}$league', false, parameter, (response) {
         isLoading = false;

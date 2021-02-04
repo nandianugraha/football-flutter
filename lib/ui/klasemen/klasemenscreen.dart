@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/util/constant.dart';
 import 'package:flutter_app/util/defaultText.dart';
+import 'package:flutter_app/util/model/klasemenmodel.dart';
 import 'package:flutter_app/util/network/api.dart';
 
 class KlasemenScreen extends StatefulWidget {
@@ -10,6 +11,7 @@ class KlasemenScreen extends StatefulWidget {
 }
 
 class _KlasemenScreen extends State<KlasemenScreen> {
+  int number;
   List _leagues = [
     '4328',
     '4332',
@@ -21,6 +23,8 @@ class _KlasemenScreen extends State<KlasemenScreen> {
     '4790'
   ];
   List _year = ['2017-2018', '2018-2019', '2019-2020', '2020-2021'];
+
+  List<KlasemenModel> _klasemenModel = [];
 
   String yearStr = '2020-2021';
   String _leagueId = '4328';
@@ -81,7 +85,7 @@ class _KlasemenScreen extends State<KlasemenScreen> {
                       setState(() {
                         _leagueId = newVal;
                         print(_leagueId);
-                        apiKlasemen(newVal, yearStr);
+                        apiKlasemen(_leagueId, yearStr);
                         // apiListTeams(_leagueId);
                       });
                     },
@@ -121,68 +125,58 @@ class _KlasemenScreen extends State<KlasemenScreen> {
               ),
             ],
           ),
-          isLoading ? Center(child: CircularProgressIndicator()) : table()
+          isLoading ? Center(child: CircularProgressIndicator()) :
+          Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.grey,
+                  ),
+                  margin: EdgeInsets.only(top: 10, bottom: 8, left: 2, right: 2),
+                  height: 50,
+                ),
+                table()
+          ])
         ],
       ),
     );
   }
 
   Widget table() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: [
-          _column('No.'),
-          _column('CLUB NAME'),
-          _column('PLAYED'),
-          _column('GF'),
-          _column('GA'),
-          _column('GD'),
-          _column('W'),
-          _column('D'),
-          _column('L'),
-          _column('TOTAL'),
-        ],
-        rows: [
-          DataRow(cells: [
-            DataCell(Text('1')),
-            DataCell(Text('Arya')),
-            DataCell(Text('6')),
-            DataCell(Text('6')),
-            DataCell(Text('6')),
-            DataCell(Text('6')),
-            DataCell(Text('6')),
-            DataCell(Text('6')),
-            DataCell(Text('6')),
-            DataCell(Text('6')),
-          ]),
-          DataRow(cells: [
-            DataCell(Text('12')),
-            DataCell(Text('John')),
-            DataCell(Text('9')),
-            DataCell(Text('9')),
-            DataCell(Text('9')),
-            DataCell(Text('9')),
-            DataCell(Text('9')),
-            DataCell(Text('9')),
-            DataCell(Text('9')),
-            DataCell(Text('9')),
-          ]),
-          DataRow(cells: [
-            DataCell(Text('42')),
-            DataCell(Text('Tony')),
-            DataCell(Text('8')),
-            DataCell(Text('8')),
-            DataCell(Text('8')),
-            DataCell(Text('8')),
-            DataCell(Text('8')),
-            DataCell(Text('8')),
-            DataCell(Text('8')),
-            DataCell(Text('8')),
-          ]),
-        ],
-      ),
-    );
+    for(number=1 ; number <= _klasemenModel.length ; number++) {
+      return isLoading ? Center(child: CircularProgressIndicator()) : SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          headingRowHeight: 70,
+          columns: [
+            _column('No.'),
+            _column('CLUB NAME'),
+            _column('PLAYED'),
+            _column('GF'),
+            _column('GA'),
+            _column('GD'),
+            _column('W'),
+            _column('D'),
+            _column('L'),
+            _column('TOTAL'),
+          ],
+          rows: _klasemenModel.map((e) =>
+              DataRow(cells: [
+                DataCell(Text('${number++}')),
+                DataCell(Text(e.name)),
+                DataCell(Text(e.played.toString())),
+                DataCell(Text(e.goalsfor.toString())),
+                DataCell(Text(e.goalsagainst.toString())),
+                DataCell(Text(e.goalsdifference.toString())),
+                DataCell(Text(e.win.toString())),
+                DataCell(Text(e.draw.toString())),
+                DataCell(Text(e.loss.toString())),
+                DataCell(Text(e.total.toString())),
+              ])).toList(),
+        ),
+      );
+    }
   }
 
   String matches(String item) {
@@ -229,15 +223,19 @@ class _KlasemenScreen extends State<KlasemenScreen> {
     return DataColumn(label: Text(label));
   }
 
-  apiKlasemen(String league, String year){
-    Constant.league = league;
-    Constant.year = year;
+  apiKlasemen(String league, String year) {
+    isLoading = true;
     Api.createDefaultParams((parameter) {
-      Api(context).execute(Constant.API_klasemen, false, parameter, (response) {
+      Api(context).execute('api/v1/json/1/lookuptable.php?l=$league&s=$year', false, parameter, (response) {
+        isLoading = false;
         print(response.data()['table']);
-        setState(() {
-
+        List klasemen = response.data()['table'];
+        _klasemenModel.clear();
+        klasemen.forEach((element) {
+          _klasemenModel.add(KlasemenModel.fromJson(element));
         });
+
+        setState(() {});
       });
     });
   }

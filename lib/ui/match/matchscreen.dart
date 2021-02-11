@@ -227,92 +227,130 @@ class _MatchesScreen extends State<MatchesScreen> {
         physics: NeverScrollableScrollPhysics(),
         itemCount: _matches.length,
         itemBuilder: (context, index) {
-          return Container(
-            padding: EdgeInsets.all(8),
-            margin: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.blueGrey[200],
-                    offset: const Offset(
-                      2.0,
-                      2.0,
+          return GestureDetector(
+            onTap: (){
+              print(index);
+            },
+            child: Container(
+              padding: EdgeInsets.all(8),
+              margin: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blueGrey[200],
+                      offset: const Offset(
+                        2.0,
+                        2.0,
+                      ),
+                      blurRadius: 4.0,
+                      spreadRadius: 1.0,
                     ),
-                    blurRadius: 4.0,
-                    spreadRadius: 1.0,
-                  ),
-                  BoxShadow(
-                    color: Colors.white,
-                    offset: const Offset(0.0, 0.0),
-                    blurRadius: 0.0,
-                    spreadRadius: 0.0,
-                  ),
-                ],
-                border: Border.all(color: Colors.blueGrey),
-                borderRadius: BorderRadius.circular(10)),
-            child: Stack(children: [
-              DefaultText(
-                sizeText: 16,
-                fontWeight: FontWeight.bold,
-                alignment: Alignment.center,
-                margin: EdgeInsets.only(top: 60),
-                textLabel: 'vs',
-              ),
-              Column(
-                children: [
-                  DefaultText(
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.all(8),
-                    textLabel: _matches[index].dateEvent,
-                    colorsText: Colors.blueGrey,
-                    sizeText: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  DefaultText(
-                    sizeText: 12,
-                    fontWeight: FontWeight.bold,
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.all(8),
-                    textLabel: _matches[index].strTime,
-                    colorsText: Colors.blueGrey,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      DefaultText(
-                        sizeText: 16,
-                        fontWeight: FontWeight.bold,
-                        textLabel: _matches[index].strHomeTeam,
-                      ),
-                      DefaultText(
-                        sizeText: 16,
-                        fontWeight: FontWeight.bold,
-                        textLabel: _matches[index].strAwayTeam,
-                      )
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      DefaultText(
-                        sizeText: 16,
-                        fontWeight: FontWeight.bold,
-                        textLabel: _matches[index].intHomeScore == null
-                            ? ' '
-                            : _matches[index].intHomeScore,
-                      ),
-                      DefaultText(
-                        sizeText: 16,
-                        fontWeight: FontWeight.bold,
-                        textLabel: _matches[index].intAwayScore == null
-                            ? ' '
-                            : _matches[index].intAwayScore,
-                      )
-                    ],
-                  )
-                ],
-              ),
-            ]),
+                    BoxShadow(
+                      color: Colors.white,
+                      offset: const Offset(0.0, 0.0),
+                      blurRadius: 0.0,
+                      spreadRadius: 0.0,
+                    ),
+                  ],
+                  border: Border.all(color: Colors.blueGrey),
+                  borderRadius: BorderRadius.circular(10)),
+              child: Stack(children: [
+                Column(
+                  children: [
+                    DefaultText(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(8),
+                      textLabel: _matches[index].dateEvent,
+                      colorsText: Colors.blueGrey,
+                      sizeText: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    DefaultText(
+                      sizeText: 12,
+                      fontWeight: FontWeight.bold,
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(8),
+                      textLabel: _matches[index].strTime,
+                      colorsText: Colors.blueGrey,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Container(
+                          width: 100,
+                          child: DefaultText(
+                            alignment: Alignment.center,
+                            sizeText: 16,
+                            maxLines: 2,
+                            textAlign: TextAlign.center,
+                            fontWeight: FontWeight.bold,
+                            textLabel: _matches[index].strHomeTeam,
+                          ),
+                        ),
+                        Container(
+                          margin: EdgeInsets.only(left: 8, right: 8),
+                          width: 100,
+                          child: DefaultText(
+                            sizeText: 16,
+                            fontWeight: FontWeight.bold,
+                            alignment: Alignment.center,
+                            textLabel: 'vs',
+                          ),
+                        ),
+                        Container(
+                          width: 100,
+                          child: DefaultText(
+                            sizeText: 16,
+                            textAlign: TextAlign.center,
+                            alignment: Alignment.center,
+                            maxLines: 2,
+                            fontWeight: FontWeight.bold,
+                            textLabel: _matches[index].strAwayTeam,
+                          ),
+                        )
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Container(
+                          width: 100,
+                          child: DefaultText(
+                            sizeText: 16,
+                            textAlign: TextAlign.center,
+                            alignment: Alignment.center,
+                            maxLines: 2,
+                            fontWeight: FontWeight.bold,
+                            textLabel: _matches[index].intHomeScore == null
+                                ? ' '
+                                : _matches[index].intHomeScore,
+                          ),
+                        ),
+                        Container(
+                          margin: EdgeInsets.only(left: 8, right: 8),
+                          width: 100,
+                        ),
+                        Container(
+                          width: 100,
+                          child: DefaultText(
+                            sizeText: 16,
+                            textAlign: TextAlign.center,
+                            alignment: Alignment.center,
+                            maxLines: 2,
+                            fontWeight: FontWeight.bold,
+                            textLabel: _matches[index].intAwayScore == null
+                                ? ' '
+                                : _matches[index].intAwayScore,
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ]),
+            ),
           );
         });
   }

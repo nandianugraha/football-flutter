@@ -94,7 +94,7 @@ class _KlasemenScreen extends State<KlasemenScreen> {
                 ),
               ),
               Container(
-                width: 125,
+                width: 150,
                 margin: EdgeInsets.only(top: 12, right: 20),
                 padding: EdgeInsets.all(8),
                 height: 40,
@@ -125,57 +125,57 @@ class _KlasemenScreen extends State<KlasemenScreen> {
               ),
             ],
           ),
-          isLoading ? Center(child: CircularProgressIndicator()) :
-          Stack(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.grey,
-                  ),
-                  margin: EdgeInsets.only(top: 10, bottom: 8, left: 2, right: 2),
-                  height: 50,
-                ),
-                table()
-          ])
+          isLoading
+              ? Center(child: CircularProgressIndicator())
+              : Stack(children: [table()])
         ],
       ),
     );
   }
 
   Widget table() {
-    for(number=1 ; number <= _klasemenModel.length ; number++) {
-      return isLoading ? Center(child: CircularProgressIndicator()) : SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          headingRowHeight: 70,
-          columns: [
-            _column('No.'),
-            _column('CLUB NAME'),
-            _column('PLAYED'),
-            _column('GF'),
-            _column('GA'),
-            _column('GD'),
-            _column('W'),
-            _column('D'),
-            _column('L'),
-            _column('TOTAL'),
-          ],
-          rows: _klasemenModel.map((e) =>
-              DataRow(cells: [
-                DataCell(Text('${number++}')),
-                DataCell(Text(e.name)),
-                DataCell(Text(e.played.toString())),
-                DataCell(Text(e.goalsfor.toString())),
-                DataCell(Text(e.goalsagainst.toString())),
-                DataCell(Text(e.goalsdifference.toString())),
-                DataCell(Text(e.win.toString())),
-                DataCell(Text(e.draw.toString())),
-                DataCell(Text(e.loss.toString())),
-                DataCell(Text(e.total.toString())),
-              ])).toList(),
-        ),
-      );
+    for (number = 1; number <= _klasemenModel.length; number++) {
+      return isLoading
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                headingRowHeight: 70,
+                columns: [
+                  _column('No.'),
+                  _column('CLUB NAME'),
+                  _column('PLAYED'),
+                  _column('GF'),
+                  _column('GA'),
+                  _column('GD'),
+                  _column('W'),
+                  _column('D'),
+                  _column('L'),
+                  _column('TOTAL'),
+                ],
+                rows: _klasemenModel
+                    .map((e) => DataRow(cells: [
+                          DataCell(Text('${number++}')),
+                          DataCell(
+                            Row(
+                              children: [
+                                Image.network(e.teamBadge, height: 30, width: 30,),
+                                DefaultText(textLabel: e.name, margin: EdgeInsets.only(left: 10),)
+                              ],
+                            )
+                          ),
+                          DataCell(Text(e.played.toString())),
+                          DataCell(Text(e.goalsfor.toString())),
+                          DataCell(Text(e.goalsagainst.toString())),
+                          DataCell(Text(e.goalsdifference.toString())),
+                          DataCell(Text(e.win.toString())),
+                          DataCell(Text(e.draw.toString())),
+                          DataCell(Text(e.loss.toString())),
+                          DataCell(Text(e.total.toString())),
+                        ]))
+                    .toList(),
+              ),
+            );
     }
   }
 
@@ -226,7 +226,9 @@ class _KlasemenScreen extends State<KlasemenScreen> {
   apiKlasemen(String league, String year) {
     isLoading = true;
     Api.createDefaultParams((parameter) {
-      Api(context).execute('api/v1/json/1/lookuptable.php?l=$league&s=$year', false, parameter, (response) {
+      Api(context).execute(
+          'api/v1/json/1/lookuptable.php?l=$league&s=$year', false, parameter,
+          (response) {
         isLoading = false;
         print(response.data()['table']);
         List klasemen = response.data()['table'];

@@ -1,14 +1,15 @@
 class KlasemenModel {
   String name;
   String teamid;
-  int played;
-  int goalsfor;
-  int goalsagainst;
-  int goalsdifference;
-  int win;
-  int draw;
-  int loss;
-  int total;
+  String played;
+  String goalsfor;
+  String goalsagainst;
+  String goalsdifference;
+  String teamBadge;
+  String win;
+  String draw;
+  String loss;
+  String total;
 
   KlasemenModel(
       {this.name,
@@ -17,36 +18,39 @@ class KlasemenModel {
         this.goalsfor,
         this.goalsagainst,
         this.goalsdifference,
+        this.teamBadge,
         this.win,
         this.draw,
         this.loss,
         this.total});
 
   KlasemenModel.fromJson(Map<String, dynamic> json) {
-    name = json['name'];
-    teamid = json['teamid'];
-    played = json['played'];
-    goalsfor = json['goalsfor'];
-    goalsagainst = json['goalsagainst'];
-    goalsdifference = json['goalsdifference'];
-    win = json['win'];
-    draw = json['draw'];
-    loss = json['loss'];
-    total = json['total'];
+    name = json['strTeam'];
+    teamid = json['idTeam'];
+    played = json['intPlayed'];
+    goalsfor = json['intGoalsFor'];
+    goalsagainst = json['intGoalsAgainst'];
+    goalsdifference = json['intGoalDifference'];
+    teamBadge = json['strTeamBadge'];
+    win = json['intWin'];
+    draw = json['intDraw'];
+    loss = json['intLoss'];
+    total = json['intPoints'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['name'] = this.name;
-    data['teamid'] = this.teamid;
-    data['played'] = this.played;
-    data['goalsfor'] = this.goalsfor;
-    data['goalsagainst'] = this.goalsagainst;
-    data['goalsdifference'] = this.goalsdifference;
-    data['win'] = this.win;
-    data['draw'] = this.draw;
-    data['loss'] = this.loss;
-    data['total'] = this.total;
+    data['strTeam'] = this.name;
+    data['idTeam'] = this.teamid;
+    data['intPlayed'] = this.played;
+    data['intGoalsFor'] = this.goalsfor;
+    data['intGoalsAgainst'] = this.goalsagainst;
+    data['intGoalDifference'] = this.goalsdifference;
+    data['strTeamBadge'] = this.teamBadge;
+    data['intWin'] = this.win;
+    data['intDraw'] = this.draw;
+    data['intLoss'] = this.loss;
+    data['intPoints'] = this.total;
     return data;
   }
 }
